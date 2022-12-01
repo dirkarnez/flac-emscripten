@@ -7,3 +7,6 @@ flac-emscripten
 - [x] follow [dirkarnez/minimal-cmake-emscripten-playground](https://github.com/dirkarnez/minimal-cmake-emscripten-playground)
 - [x] Not to merge to flac-prebuilt, but use flac-prebuilt emscripten build
    - https://github.com/dirkarnez/flac-prebuilt/blob/main/local-emscripten-build.cmd
+- [ ] Web worker
+- [ ] decoder
+- [ ] GitHub action build with GitHub page

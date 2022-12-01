@@ -5,7 +5,7 @@ set DOWNLOADS_DIR=%USERPROFILE%\Downloads
 set DOWNLOADS_DIR_LINUX=%DOWNLOADS_DIR:\=/%
 
 @REM git clone --recursive https://github.com/emscripten-core/emsdk.git && cd emsdk && git checkout 3.1.25
-SET EMSDK=%DOWNLOADS_DIR%\emsdk
+SET EMSDK=%CD%\emsdk
 SET EMSDK_NODE=%EMSDK%\node\14.18.2_64bit\bin\node.exe
 SET EMSDK_PYTHON=%EMSDK%\python\3.9.2-nuget_64bit\python.exe
 SET JAVA_HOME=%EMSDK%\java\8.152_64bit
@@ -15,6 +15,8 @@ SET PATH=^
 %DOWNLOADS_DIR%\x86_64-8.1.0-release-posix-seh-rt_v6-rev0;^
 %DOWNLOADS_DIR%\x86_64-8.1.0-release-posix-seh-rt_v6-rev0\bin;^
 %DOWNLOADS_DIR%\cmake-3.22.2-windows-x86_64\bin;^
+%DOWNLOADS_DIR%\python-3.7.9-amd64-portable;^
+%DOWNLOADS_DIR%\python-3.7.9-amd64-portable\Scripts;^
 %EMSDK%;^
 %EMSDK%\upstream\emscripten;^
 %EMSDK%\node\14.18.2_64bit\bin;
@@ -32,10 +34,14 @@ cd %~dp0
 
 if exist cmake-build rmdir /s /q cmake-build
 
+cd /d %EMSDK% &&^
+.\emsdk install latest &&^
+.\emsdk activate latest &&^
+cd /d "%~dp0" &&^
 cmake.exe -G"MinGW Makefiles" ^
 -DCMAKE_BUILD_TYPE=Debug ^
--DCMAKE_TOOLCHAIN_FILE="%DOWNLOADS_DIR_LINUX%/emsdk/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake" ^
--Dflac_DIR="%DOWNLOADS_DIR_LINUX%/flac/cmake-build/flac-v1.4.2-emscripten-emsdk-3.1.25/lib/cmake/FLAC" ^
+-DCMAKE_TOOLCHAIN_FILE="%CD_LINUX%/emsdk/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake" ^
+-Dflac_DIR="%DOWNLOADS_DIR_LINUX%/flac-v1.4.2-emscripten-emsdk-3.1.25/lib/cmake/FLAC" ^
 -DWITH_OGG=OFF ^
 -B./cmake-build &&^
 cd cmake-build &&^

@@ -31,6 +31,8 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <emscripten/bind.h>
+using namespace emscripten;
 
 #include "FLAC++/decoder.h"
 // #include "share/compat.h"
@@ -76,55 +78,6 @@ private:
 	OurDecoder(const OurDecoder&);
 	OurDecoder&operator=(const OurDecoder&);
 };
-
-extern "C" {
-
-int mains(int argc, char *argv)
-{
-	bool ok = true;
-	FILE *fout;
-
-	if(argc != 2) {
-		fprintf(stderr, "usage: %s infile.flac, get %d\n", argv, argc);
-		return 1;
-	}
-
-	if((fout = fopen("output.wav", "wb")) == NULL) {
-		
-		fprintf(stdout, "!!!B");
-		fprintf(stderr, "ERROR: opening %s for output\n", argv);
-		return 1;
-	}
-
-	OurDecoder decoder(fout);
-
-	if(!decoder) {
-		fprintf(stderr, "ERROR: allocating decoder\n");
-		fclose(fout);
-		return 1;
-	}
-
-	(void)decoder.set_md5_checking(true);
-
-	FLAC__StreamDecoderInitStatus init_status = decoder.init(argv);
-	if(init_status != FLAC__STREAM_DECODER_INIT_STATUS_OK) {
-		fprintf(stderr, "ERROR: initializing decoder: %s\n", FLAC__StreamDecoderInitStatusString[init_status]);
-		ok = false;
-	}
-
-	if(ok) {
-		ok = decoder.process_until_end_of_stream();
-		fprintf(stderr, "decoding: %s\n", ok? "succeeded" : "FAILED");
-		fprintf(stderr, "   state: %s\n", decoder.get_state().resolved_as_cstring(decoder));
-	}
-
-	fclose(fout);
-
-	fprintf(stdout, "done");
-
-	return 0;
-}
-}
 
 ::FLAC__StreamDecoderWriteStatus OurDecoder::write_callback(const ::FLAC__Frame *frame, const FLAC__int32 * const buffer[])
 {
@@ -199,4 +152,56 @@ void OurDecoder::metadata_callback(const ::FLAC__StreamMetadata *metadata)
 void OurDecoder::error_callback(::FLAC__StreamDecoderErrorStatus status)
 {
 	fprintf(stderr, "Got error callback: %s\n", FLAC__StreamDecoderErrorStatusString[status]);
+}
+
+bool decode(std::string in_file_name, std::string out_file_name) {
+	bool ok = true;
+	FILE *fout;
+
+	// if(argc != 2) {
+	// 	fprintf(stderr, "usage: %s infile.flac, get %d\n", argv, argc);
+	// 	return 1;
+	// }
+
+	if((fout = fopen(out_file_name.c_str(), "wb")) == NULL) {
+		fprintf(stderr, "ERROR: opening %s for output\n", in_file_name.c_str());
+		return 1;
+	}
+
+	OurDecoder decoder(fout);
+
+	if(!decoder) {
+		fprintf(stderr, "ERROR: allocating decoder\n");
+		fclose(fout);
+		return 1;
+	}
+
+	(void)decoder.set_md5_checking(true);
+
+	FLAC__StreamDecoderInitStatus init_status = decoder.init(in_file_name.c_str());
+	if(init_status != FLAC__STREAM_DECODER_INIT_STATUS_OK) {
+		fprintf(stderr, "ERROR: initializing decoder: %s\n", FLAC__StreamDecoderInitStatusString[init_status]);
+		ok = false;
+	}
+
+	if(ok) {
+		ok = decoder.process_until_end_of_stream();
+		fprintf(stderr, "decoding: %s\n", ok? "succeeded" : "FAILED");
+		fprintf(stderr, "   state: %s\n", decoder.get_state().resolved_as_cstring(decoder));
+	}
+
+	fclose(fout);
+
+	fprintf(stdout, "done");
+
+	return ok;
+}
+
+std::string encode(std::string fileName) {
+    return "";
+}
+
+EMSCRIPTEN_BINDINGS(my_module) {
+    function("decode", &decode);
+	function("encode", &encode);
 }

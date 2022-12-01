@@ -1,9 +1,12 @@
 cmake_minimum_required(VERSION 3.14)
 
-# set(CMAKE_CXX_STANDARD 11)
-# set(CMAKE_CXX_STANDARD_REQUIRED ON)
+SET (CMAKE_CXX_STANDARD 11)
+SET (CMAKE_CXX_STANDARD_REQUIRED ON)
 
-project(flac-playground)
+project(flac-emscripten)
+
+set(CMAKE_VERBOSE_MAKEFILE on)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/build.emscripten)
 
 find_package(flac REQUIRED)
 
@@ -14,4 +17,4 @@ add_executable(${PROJECT_NAME}
 )
 
 target_link_libraries(${PROJECT_NAME} FLAC::FLAC++)
-set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS "-sFORCE_FILESYSTEM=1 -sEXPORTED_FUNCTIONS=_mains -sEXPORTED_RUNTIME_METHODS=ccall")
+set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS "-sDEMANGLE_SUPPORT=1 -sFORCE_FILESYSTEM=1 --bind")

@@ -1,0 +1,62 @@
+<html>
+
+<body>
+  <input type="file" id="myfile" multiple>
+  <script>
+
+
+
+    var Module = {
+      onRuntimeInitialized: function () {
+
+        document.getElementById("myfile").addEventListener("change", function () {
+          Array
+          .from(document.getElementById('myfile').files)
+          .forEach(file => {
+            let reader = new FileReader();
+            reader.addEventListener('loadend', function (e) {
+              let result = reader.result;
+              const uint8_view = new Uint8Array(result);
+              FS.writeFile(file.name, uint8_view);
+              const decodedFileName = `${file.name.substring(0, file.name.lastIndexOf(".flac"))}.wav`;
+              const isSuccessful = Module.decode(file.name, decodedFileName);
+              if (isSuccessful) {
+                downloadBlob(FS.readFile(decodedFileName, { encoding: 'binary' }), decodedFileName, "audio/wav")
+              } else {
+                alert(`${file.name} failed`);
+              }
+            });
+            reader.readAsArrayBuffer(file);;
+          });
+        });
+      }
+    };
+
+    downloadBlob = function (data, fileName, mimeType) {
+      var blob, url;
+      blob = new Blob([data], {
+        type: mimeType
+      });
+      url = window.URL.createObjectURL(blob);
+      downloadURL(url, fileName);
+      setTimeout(function () {
+        return window.URL.revokeObjectURL(url);
+      }, 1000);
+    };
+
+    downloadURL = function (data, fileName) {
+      var a;
+      a = document.createElement('a');
+      a.href = data;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.style = 'display: none';
+      a.click();
+      a.remove();
+    };
+  </script>
+
+  <script type="text/javascript" src="flac-emscripten.js"></script>
+</body>
+
+</html>

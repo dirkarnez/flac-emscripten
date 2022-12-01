@@ -4,7 +4,6 @@ REM run as Administrator
 set DOWNLOADS_DIR=%USERPROFILE%\Downloads
 set DOWNLOADS_DIR_LINUX=%DOWNLOADS_DIR:\=/%
 
-
 @REM git clone --recursive https://github.com/emscripten-core/emsdk.git && cd emsdk && git checkout 3.1.25
 SET EMSDK=%DOWNLOADS_DIR%\emsdk
 SET EMSDK_NODE=%EMSDK%\node\14.18.2_64bit\bin\node.exe
@@ -36,7 +35,7 @@ if exist cmake-build rmdir /s /q cmake-build
 cmake.exe -G"MinGW Makefiles" ^
 -DCMAKE_BUILD_TYPE=Debug ^
 -DCMAKE_TOOLCHAIN_FILE="%DOWNLOADS_DIR_LINUX%/emsdk/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake" ^
--Dflac_DIR="%DOWNLOADS_DIR_LINUX%/flac/cmake-build/flac-emscripten/lib/cmake/FLAC" ^
+-Dflac_DIR="%DOWNLOADS_DIR_LINUX%/flac/cmake-build/flac-v1.4.2-emscripten-emsdk-3.1.25/lib/cmake/FLAC" ^
 -DWITH_OGG=OFF ^
 -B./cmake-build &&^
 cd cmake-build &&^
